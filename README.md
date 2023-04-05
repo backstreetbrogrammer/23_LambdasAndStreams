@@ -699,3 +699,65 @@ Student{name='Jenny', age=17}
 
 ---
 
+### Chapter 02. Map Filter Reduce Algorithm
+
+The three methods, `map`, `filter`, and `reduce`, are the cornerstone of any functional programming.
+
+Usually, our data pipelines consist of one or more intermediate operations, transforming (aka **mapping**) and/or
+**filtering** elements, and a terminal operation to gather the data again (aka **reducing**).
+
+For ex: Suppose we have a group of students in a class, and we want to know the average age of students who are older
+than 18 years.
+
+- `map()`
+
+  List<Student> ==> Student object **mapped** to Integer age ==> List<Integer>
+
+- `filter()`
+
+  List<Integer> ==> Filter all ages who are older than 18 years, discard all the ages less than 18 ==> List<Integer>
+
+- `reduce()`
+
+  List<Integer> ==> reduce all the ages to **one single value**, which is **average** (other reduce operations are
+  **sum**, **min**, **max**, etc.)
+
+In SQL, same could be written as:
+
+```roomsql
+SELECT AVG(age) 
+FROM Students 
+WHERE age >= 18
+```
+
+In Java 8, with introduction of Streams API, same could be written as:
+
+```
+List<Student> students = ...
+
+students.stream()
+           .mapToInt(student -> student.getAge())
+           .filter(age -> age >= 18)
+           .average();
+```
+
+The most important point about using Stream API is that the data is **never duplicated**. In the above example,
+`students.stream()` is just creating an **empty** `Stream<Student>` object.
+
+Looking at the example again:
+
+```
+students.stream()                                  // Stream<Student>
+           .mapToInt(student -> student.getAge())  // IntStream<Integer>
+           .filter(age -> age >= 18)               // IntStream<Integer> 
+           .average();                             // Triggers the computation
+```
+
+Thus, there are 2 kinds of methods in Stream API:
+
+- methods that create a new Stream => called **intermediate** methods
+- methods that produce a result => called **terminal** methods
+
+Only terminal methods trigger the computation, otherwise the intermediate methods are **lazy** and will be computed only
+after the terminal method is triggered.
+
