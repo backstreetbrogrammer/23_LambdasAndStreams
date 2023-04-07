@@ -255,8 +255,8 @@ Given a **Java POJO**:
 ```java
 public class Student {
 
-    private String name;
-    private int age;
+    private final String name;
+    private final int age;
 
     public Student(final String name, final int age) {
         this.name = name;
@@ -267,16 +267,8 @@ public class Student {
         return name;
     }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
-
     public int getAge() {
         return age;
-    }
-
-    public void setAge(final int age) {
-        this.age = age;
     }
 
     @Override
@@ -586,8 +578,8 @@ Given a POJO class:
 ```java
 public class Student {
 
-    private String name;
-    private int age;
+    private final String name;
+    private final int age;
 
     public Student(final String name, final int age) {
         this.name = name;
@@ -598,16 +590,8 @@ public class Student {
         return name;
     }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
-
     public int getAge() {
         return age;
-    }
-
-    public void setAge(final int age) {
-        this.age = age;
     }
 
     @Override
@@ -748,9 +732,9 @@ Looking at the example again:
 
 ```
 students.stream()                                  // Stream<Student>
-           .mapToInt(student -> student.getAge())  // IntStream<Integer>
-           .filter(age -> age >= 18)               // IntStream<Integer> 
-           .average();                             // Triggers the computation
+           .mapToInt(student -> student.getAge())  // IntStream
+           .filter(age -> age >= 18)               // IntStream 
+           .average();                             // Reduce - triggers the computation
 ```
 
 Thus, there are 2 kinds of methods in Stream API:
@@ -761,3 +745,258 @@ Thus, there are 2 kinds of methods in Stream API:
 Only terminal methods trigger the computation, otherwise the intermediate methods are **lazy** and will be computed only
 after the terminal method is triggered.
 
+Example code:
+
+```java
+public class Student {
+
+    private final String name;
+    private final int age;
+
+    public Student(final String name, final int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+
+}
+```
+
+Example for `MapFilterReduceDemo`:
+
+```java
+import java.util.Arrays;
+
+public class MapFilterReduceDemo {
+
+    public static void main(final String[] args) {
+        final var john = new Student("John", 18);
+        final var mary = new Student("Mary", 16);
+        final var thomas = new Student("Thomas", 21);
+        final var rahul = new Student("Rahul", 23);
+        final var jenny = new Student("Jenny", 17);
+        final var tatiana = new Student("Tatiana", 25);
+
+        final var students = Arrays.asList(john, mary, thomas, rahul, jenny, tatiana);
+
+        final var countStudentsOlderThan20 = students.stream()
+                                                     .mapToInt(student -> student.getAge())
+                                                     .filter(age -> age >= 20)
+                                                     .count();
+        System.out.printf("Total no of students older than 20 years of age: %d%n", countStudentsOlderThan20);
+
+        final var countStudentsLessThan20 = students.stream()
+                                                    .mapToInt(student -> student.getAge())
+                                                    .filter(age -> age < 20)
+                                                    .count();
+        System.out.printf("Total no of students less than 20 years of age: %d%n", countStudentsLessThan20);
+    }
+
+}
+```
+
+One more mapping function is available which is similar to `map()` but functionality is slightly different:
+
+- `flatMap()`
+
+  The `flatMap` method lets us replace each value of a stream with another stream and then concatenates all the
+  generated streams into a single stream.
+
+Example:
+
+If `path` is the path to a file, then the following produces a stream of the words contained in that file:
+
+     Stream<String> lines = Files.lines(path, StandardCharsets.UTF_8);
+     Stream<String> words = lines.flatMap(line -> Stream.of(line.split(" +")));
+
+The mapper function passed to `flatMap` splits a line, using a simple regular expression, into an array of words, and
+then creates a stream of words from that array.
+
+If we use `map()` instead of `flatMap()` above, it will return `Stream<Stream<String>>` instead of `Stream<String>`:
+
+     Stream<Stream<String>> mappedLines = lines.map(line -> Stream.of(line.split(" +")));
+
+Example code:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Course {
+
+    private final String courseName;
+    private final List<Student> students = new ArrayList<>();
+
+    public Course(final String courseName, final Student... students) {
+        this.courseName = courseName;
+        this.students.addAll(List.of(students));
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public List<Student> getStudents() {
+        return List.copyOf(students);
+    }
+
+    @Override
+    public String toString() {
+        return "Course{" +
+                "courseName='" + courseName + '\'' +
+                ", students=" + students +
+                '}';
+    }
+}
+```
+
+In this code snippet:
+
+```
+        // Flat Map
+        final var advancedJava = new Course("Advanced Java", john, mary);
+        final var python = new Course("Python", thomas, rahul);
+        final var algorithms = new Course("Algorithms", jenny, tatiana);
+
+        final var courses = List.of(advancedJava, python, algorithms);
+        courses.stream()
+               .flatMap(course -> course.getStudents().stream())
+               .map(p -> p.getName())
+               .forEach(name -> System.out.println(name));
+```
+
+If we use `map(course -> course.getStudents().stream())`, this will result in `Stream<Stream<Student>>` but we want
+`Stream<Student>` instead => thus `flatMap()` is used.
+
+Complete code:
+
+```java
+import java.util.Arrays;
+import java.util.List;
+
+public class MapFilterReduceDemo {
+
+    public static void main(final String[] args) {
+        final var john = new Student("John", 18);
+        final var mary = new Student("Mary", 16);
+        final var thomas = new Student("Thomas", 21);
+        final var rahul = new Student("Rahul", 23);
+        final var jenny = new Student("Jenny", 17);
+        final var tatiana = new Student("Tatiana", 25);
+
+        final var students = Arrays.asList(john, mary, thomas, rahul, jenny, tatiana);
+
+        final var countStudentsOlderThan20 = students.stream()
+                                                     .mapToInt(student -> student.getAge())
+                                                     .filter(age -> age >= 20)
+                                                     .count();
+        System.out.printf("Total no of students older than 20 years of age: %d%n", countStudentsOlderThan20);
+
+        final var countStudentsLessThan20 = students.stream()
+                                                    .mapToInt(student -> student.getAge())
+                                                    .filter(age -> age < 20)
+                                                    .count();
+        System.out.printf("Total no of students less than 20 years of age: %d%n", countStudentsLessThan20);
+
+        // Flat Map
+        final var advancedJava = new Course("Advanced Java", john, mary);
+        final var python = new Course("Python", thomas, rahul);
+        final var algorithms = new Course("Algorithms", jenny, tatiana);
+
+        final var courses = List.of(advancedJava, python, algorithms);
+        courses.stream()
+               .flatMap(course -> course.getStudents().stream())
+               .map(p -> p.getName())
+               .forEach(name -> System.out.println(name));
+    }
+
+}
+```
+
+Output:
+
+```
+Total no of students older than 20 years of age: 3
+Total no of students less than 20 years of age: 3
+John
+Mary
+Thomas
+Rahul
+Jenny
+Tatiana
+```
+
+#### Interview Problem 3 (Merrill Lynch): Flat Map problem
+
+Given the below code snippet:
+
+```
+final var students = List.of("John", "Mary", "Peter");
+final var favoriteLanguages = List.of("Java", "Python");
+```
+
+Task: return pair of both the lists =>
+
+```
+[("John", "Java"), ("John", "Python"), ("Mary", "Java"), ("Mary", "Python"), ("Peter", "Java"), ("Peter", "Python")]
+```
+
+**Solution**:
+
+We could use two maps to iterate on the two lists and generate the pairs. But this would return a
+`Stream<Stream<String[]>>`. What we need to do is `flatten` the generated streams to result in a `Stream<String[]>`.
+
+Complete code solution:
+
+```java
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class FlatMapInterviewProblem {
+
+    public static void main(final String[] args) {
+        final var students = List.of("John", "Mary", "Peter");
+        final var favoriteLanguages = List.of("Java", "Python");
+
+        final var pairs
+                = students.stream()
+                          .flatMap(student -> favoriteLanguages.stream()
+                                                               .map(favoriteLanguage ->
+                                                                            new String[]{student, favoriteLanguage}))
+                          .collect(Collectors.toList());
+
+        pairs.forEach(val -> System.out.printf("(%s,%s)%n", val[0], val[1]));
+    }
+
+}
+```
+
+Output:
+
+```
+(John,Java)
+(John,Python)
+(Mary,Java)
+(Mary,Python)
+(Peter,Java)
+(Peter,Python)
+```
+
+---
+
+### Chapter 03. Building a Stream

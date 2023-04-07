@@ -1,5 +1,7 @@
 package com.backstreetbrogrammer.ch01_introductionToLambdas;
 
+import com.backstreetbrogrammer.model.Student;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
