@@ -18,6 +18,13 @@ Tools used:
     - Chaining and Composing Lambdas
 2. Map Filter Reduce Algorithm
 3. Building a Stream
+    - Creating a Stream from array
+    - Creating a Stream from Collection
+    - Creating a Stream from Text File
+    - Creating a Stream using Regular Expression
+    - Creating a Stream from String
+    - Selecting elements of a Stream
+    - Converting a `for` loop to a Stream
 4. Collecting data from Stream
 5. Creating and Analysing Histograms from Streams
 
@@ -1000,3 +1007,250 @@ Output:
 ---
 
 ### Chapter 03. Building a Stream
+
+#### Creating a Stream from array
+
+We can create a Stream from an array using:
+
+- Factory method `Arrays.stream()`
+- Factory method `Stream.of()`
+
+Example code:
+
+```java
+import java.util.Arrays;
+import java.util.stream.Stream;
+
+public class StreamFromArray {
+
+    public static void main(final String[] args) {
+        final var john = new Student("John", 18);
+        final var mary = new Student("Mary", 16);
+        final var thomas = new Student("Thomas", 21);
+        final var rahul = new Student("Rahul", 23);
+        final var jenny = new Student("Jenny", 17);
+        final var tatiana = new Student("Tatiana", 25);
+
+        final Student[] students = {john, mary, thomas, rahul, jenny, tatiana};
+
+        // 1. Using Arrays.stream()
+        Arrays.stream(students).forEach(System.out::println);
+
+        System.out.println("-----------------------------");
+
+        // 2. Using Stream.of()
+        Stream.of(students).forEach(System.out::println);
+    }
+
+}
+```
+
+Output:
+
+```
+Student{name='John', age=18}
+Student{name='Mary', age=16}
+Student{name='Thomas', age=21}
+Student{name='Rahul', age=23}
+Student{name='Jenny', age=17}
+Student{name='Tatiana', age=25}
+-----------------------------
+Student{name='John', age=18}
+Student{name='Mary', age=16}
+Student{name='Thomas', age=21}
+Student{name='Rahul', age=23}
+Student{name='Jenny', age=17}
+Student{name='Tatiana', age=25}
+```
+
+#### Creating a Stream from Collection
+
+All the Java collections have `stream()` method to create a `Stream`
+
+Code snippet:
+
+```
+final List<Student> students = Arrays.asList(john, mary, thomas, rahul, jenny, tatiana);
+students.stream().forEach(System.out::println);
+```
+
+#### Creating a Stream from Text File
+
+We can first create a `Path` to a file. And then, can use factory method `Files.lines()` to get `Stream<String>`.
+
+Example code:
+
+```java
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Stream;
+
+public class StreamFromTextFile {
+
+    public static void main(final String[] args) {
+        final Path path = Path.of("src", "main", "resources", "200words.txt");
+        try (final Stream<String> lines = Files.lines(path)) {
+            final long count = lines.count();
+            System.out.printf("Count = %d%n", count);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+Output:
+
+```
+Count = 200
+```
+
+#### Creating a Stream using Regular Expression
+
+We can first create a `Pattern` for a regular expression. And then, call `pattern.splitAsStream()` to return
+`Stream<String>`.
+
+Example code:
+
+```java
+import java.util.regex.Pattern;
+
+public class StreamFromRegEx {
+
+    public static void main(final String[] args) {
+        final String sentence = "Life is like riding a bicycle. To keep your balance, you must keep moving.";
+        final Pattern pattern = Pattern.compile("\\s");
+        final long count = pattern.splitAsStream(sentence).count();
+        System.out.printf("Count = %d%n", count);
+    }
+
+}
+```
+
+Output:
+
+```
+Count = 14
+```
+
+#### Creating a Stream from String
+
+If we want to treat each String characters, we can use `String.chars()` method which returns `IntStream` for each
+character code point. This is very handy for manipulating or doing certain operations on individual String characters
+like sorting, finding distinct characters, etc.
+
+```java
+public class StreamFromString {
+
+    public static void main(final String[] args) {
+        final String sentence = "Life is like riding a bicycle. To keep your balance, you must keep moving.";
+
+        sentence.chars()                                // IntStream
+                .mapToObj(Character::toString)          // Stream<String>
+                .filter(letter -> !letter.equals(" "))
+                .distinct()
+                .sorted()
+                .forEach(System.out::print);
+    }
+
+}
+```
+
+Output:
+
+```
+,.LTabcdefgiklmnoprstuvy
+```
+
+#### Selecting elements of a Stream
+
+We can select certain elements of a Stream using two patterns:
+
+- get the index and call `skip()` or `limit()`
+- use a `Predicate` and call `takeWhile()` or `dropWhile()`
+
+Example code using `skip()` and `limit()`:
+
+```java
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+public class StreamSkippingAndLimiting {
+
+    public static void main(final String[] args) {
+        IntStream.range(0, 30)
+                 .skip(10)
+                 .limit(10)
+                 .forEach(index -> System.out.printf("%d ", index));
+
+        System.out.println("\n-------------------");
+
+        final Path path = Path.of("src", "main", "resources", "200words.txt");
+        try (final Stream<String> lines = Files.lines(path)) {
+            lines.skip(20).limit(10).forEach(System.out::println);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+Output:
+
+```
+10 11 12 13 14 15 16 17 18 19 
+-------------------
+at
+but
+be
+my
+on
+have
+him
+is
+said
+me
+```
+
+Example code using `Predicate` and call `takeWhile()` and `dropWhile()`:
+
+```java
+import java.util.stream.Stream;
+
+public class StreamTakeWhileDropWhile {
+
+    public static void main(final String[] args) {
+        Stream.of(4, 4, 4, 5, 6, 7, 8, 9, 10)
+              .takeWhile(number -> (number / 4 == 1))
+              .forEach(index -> System.out.printf("%d ", index));
+
+        System.out.println("\n-------------------");
+
+        Stream.of(4, 4, 4, 5, 6, 7, 8, 9, 10)
+              .dropWhile(number -> (number / 4 == 1))
+              .forEach(index -> System.out.printf("%d ", index));
+    }
+
+}
+```
+
+Output:
+
+```
+4 4 4 5 6 7 
+-------------------
+8 9 10 
+```
+
+#### Converting a for loop to a Stream
+
+---
+
+### Chapter 04. Collecting data from Stream
+
