@@ -11,21 +11,21 @@ Tools used:
 
 ## Table of contents
 
-1. Introduction to Lambdas
-    - Lambda Expressions and Functional Interfaces
-    - Exploring `java.util.function` package
-    - Lambdas vs Anonymous classes
-    - Chaining and Composing Lambdas
-2. Map Filter Reduce Algorithm
-3. Building a Stream
-    - Creating a Stream from array
-    - Creating a Stream from Collection
-    - Creating a Stream from Text File
-    - Creating a Stream using Regular Expression
-    - Creating a Stream from String
-    - Selecting elements of a Stream
-    - Converting a `for` loop to a Stream
-4. Collecting data from Stream
+1. [Introduction to Lambdas](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#chapter-01-introduction-to-lambdas)
+    - [Lambda Expressions and Functional Interfaces](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#lambda-expressions-and-functional-interfaces)
+    - [Exploring `java.util.function` package](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#exploring-javautilfunction-package)
+    - [Lambdas vs Anonymous classes](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#lambdas-vs-anonymous-classes)
+    - [Chaining and Composing Lambdas](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#chaining-and-composing-lambdas)
+2. [Map Filter Reduce Algorithm](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#chapter-02-map-filter-reduce-algorithm)
+3. [Building a Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#chapter-03-building-a-stream)
+    - [Creating a Stream from array](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#creating-a-stream-from-array)
+    - [Creating a Stream from Collection](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#creating-a-stream-from-collection)
+    - [Creating a Stream from Text File](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#creating-a-stream-from-text-file)
+    - [Creating a Stream using Regular Expression](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#creating-a-stream-using-regular-expression)
+    - [Creating a Stream from String](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#creating-a-stream-from-string)
+    - [Selecting elements of a Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#selecting-elements-of-a-stream)
+    - [Converting a `for` loop to a Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#converting-a-for-loop-to-a-stream)
+4. [Collecting data from Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#chapter-04-collecting-data-from-stream)
 5. Creating and Analysing Histograms from Streams
 
 ---
