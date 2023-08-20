@@ -25,8 +25,9 @@ Tools used:
     - [Creating a Stream from String](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#creating-a-stream-from-string)
     - [Selecting elements of a Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#selecting-elements-of-a-stream)
     - [Converting a `for` loop to a Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#converting-a-for-loop-to-a-stream)
-4. [Collecting data from Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#chapter-04-collecting-data-from-stream)
-5. Creating and Analysing Histograms from Streams
+4. [Reducing Data using Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#chapter-04-reducing-data-using-stream)
+5. [Collecting data from Stream](https://github.com/backstreetbrogrammer/23_LambdasAndStreams#chapter-05-collecting-data-from-stream)
+6. Creating and Analysing Histograms from Streams
 
 ---
 
@@ -1250,7 +1251,122 @@ Output:
 
 #### Converting a for loop to a Stream
 
+Any `for` loop can be converted to Stream.
+
+**Example**
+
+Suppose we want to calculate the average age of Students who are greater than 20 years of age.
+
+Using For-Loop:
+
+```
+    private static double getAverageAgeUsingForLoop(final List<Student> students) {
+        double average = 0D;
+        int sum = 0;
+        int count = 0;
+        for (final Student student : students) {
+            if (student.getAge() > 20) {
+                count++;
+                sum += student.getAge();
+            }
+        }
+        if (count > 0) {
+            average = sum / count;
+        }
+
+        return average;
+    }
+```
+
+However, the same calculation can be done using Streams very concisely:
+
+```
+    private static double getAverageAgeUsingStreams(final List<Student> students) {
+        return students.stream()
+                       .mapToInt(Student::getAge)
+                       .filter(age -> age > 20)
+                       .average()
+                       .orElseThrow();
+    }
+```
+
+Moreover, few operations can be done in parallel using `parallelStream()` if the calculation can be divided into
+subtasks.
+
+**Complete code**
+
+```java
+import java.util.List;
+
+public class ForLoopToStream {
+
+    public static void main(final String[] args) {
+        final var john = new Student("John", 18);
+        final var mary = new Student("Mary", 16);
+        final var thomas = new Student("Thomas", 21);
+        final var rahul = new Student("Rahul", 23);
+        final var jenny = new Student("Jenny", 17);
+        final var tatiana = new Student("Tatiana", 25);
+
+        final List<Student> students = List.of(john, mary, thomas, rahul, jenny, tatiana);
+
+        final double averageAgeUsingForLoop = getAverageAgeUsingForLoop(students);
+        System.out.printf("Average age using For-Loop = %.2f%n", averageAgeUsingForLoop);
+
+        final double averageAgeUsingStreams = getAverageAgeUsingStreams(students);
+        System.out.printf("Average age using Streams = %.2f%n", averageAgeUsingStreams);
+    }
+
+    private static double getAverageAgeUsingForLoop(final List<Student> students) {
+        double average = 0D;
+        int sum = 0;
+        int count = 0;
+        for (final Student student : students) {
+            if (student.getAge() > 20) {
+                count++;
+                sum += student.getAge();
+            }
+        }
+        if (count > 0) {
+            average = sum / count;
+        }
+
+        return average;
+    }
+
+    private static double getAverageAgeUsingStreams(final List<Student> students) {
+        return students.stream()
+                       .mapToInt(Student::getAge)
+                       .filter(age -> age > 20)
+                       .average()
+                       .orElseThrow();
+    }
+
+}
+```
+
+**Output:**
+
+```
+Average age using For-Loop = 23.00
+Average age using Streams = 23.00
+```
+
+We should be cautious about one thing while converting a **For-Loop** to **Streams**:
+
+- A **Stream** does one thing at a time
+- So a **For-Loop** that does (say) 3 things -> should be converted into 3 streams
+
+Thus, we can refactor from one big **For-Loop** doing multiple data processing steps into independent smaller unit steps
+and convert each into Streams for better readability and even performance improvement (in case we can use parallel
+streams).
+
 ---
 
-### Chapter 04. Collecting data from Stream
+### Chapter 04. Reducing Data using Stream
 
+
+
+---
+
+### Chapter 05. Collecting data from Stream
