@@ -1449,7 +1449,7 @@ advantage of multicore hardware architectures.
 
 **Reduction without identity**
 
-If the reduction operation has an identity element, then it can be passed to the `reduce()` method. Thus, if the 
+If the reduction operation has an identity element, then it can be passed to the `reduce()` method. Thus, if the
 processed stream is empty, then the identity element is returned.
 
 ```
@@ -1460,7 +1460,7 @@ processed stream is empty, then the identity element is returned.
                        .reduce(0, Integer::sum);
 ```
 
-If the reduction operation has **NO** identity element, OR, if no element is provided, then the `reduce()` method wraps 
+If the reduction operation has **NO** identity element, OR, if no element is provided, then the `reduce()` method wraps
 the result in an `Optional` object.
 
 ```
@@ -1471,7 +1471,17 @@ the result in an `Optional` object.
                        .reduce(Integer::sum);
 ```
 
+We can check if an optional holds a value with `isPresent()` or `isEmpty()` and get its value using `get()` (Java 8)
+or `orElseThrow()` (Java 11). Both these getter methods throw `NoSuchElementException` if the optional is empty.
+
+Reduction methods that return `Optional`:
+
+- `reduce(BinaryOperator)`
+- `min()`
+- `max()`
+- `average()`
 
 ---
 
 ### Chapter 05. Collecting data from Stream
+
