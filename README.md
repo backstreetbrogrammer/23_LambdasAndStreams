@@ -1365,6 +1365,111 @@ streams).
 
 ### Chapter 04. Reducing Data using Stream
 
+**Reduction** stream operations allow us to produce **one single result** from a sequence of elements, by repeatedly
+applying a **combining** operation to the elements in the sequence.
+
+Key concepts:
+
+- **Identity** – an element that is the initial value of the reduction operation and the **default** result if the
+  stream is empty
+- **Accumulator** – a function that takes **two** parameters: a partial result of the reduction operation and the next
+  element of the stream
+- **Combiner** – a function used to combine the partial result of the reduction operation when the reduction is
+  **parallelized** or when there's a mismatch between the types of the accumulator arguments and the types of the
+  accumulator implementation
+
+Example code snippet:
+
+```
+    @Test
+    void testSumReduce() {
+        final List<Integer> numbers = List.of(1, 2, 3, 4, 5, 6);
+
+        int result = numbers
+                .stream()
+                .reduce(0, (subtotal, element) -> subtotal + element);
+
+        assertEquals(21, result);
+    }
+```
+
+**Identity** = `0`
+
+**Accumulator** = lambda expression => `subtotal, element -> subtotal + element`
+
+We can also use:
+
+```
+        int result = numbers
+                .stream()
+                .reduce(0, Integer::sum);
+```
+
+**Using Parallel Stream**
+
+```
+    @Test
+    void testSumReduceParallel() {
+        final List<Integer> numbers = List.of(1, 2, 3, 4, 5, 6);
+
+        int result = numbers
+                .parallelStream()
+                .reduce(0, Integer::sum, Integer::sum);
+                // .reduce(0, (subtotal, element) -> subtotal + element, Integer::sum);
+
+        assertEquals(21, result);
+    }
+```
+
+**Identity** = `0`
+
+**Accumulator** = lambda expression => `subtotal, element -> subtotal + element`
+
+**Combiner** = lambda expression => `Integer::sum`
+
+When a stream executes in **parallel**, the Java runtime splits the stream into multiple sub-streams.
+
+In such cases, we need to use a function to combine the results of the sub-streams into a single one.
+
+This is the role of the **combiner** — in the above unit test, it's the `Integer::sum` method reference.
+
+**Reducing in parallel**
+
+When we use parallelized streams, we should make sure that `reduce()` or any other aggregate operations executed on the
+streams are:
+
+- **associative**: the result is not affected by the **order** of the operands
+- **non-interfering**: the operation doesn't affect the data source
+- **stateless and deterministic**: the operation doesn't have **state** and produces the same output for a given input
+
+We should fulfill all these conditions to prevent unpredictable results.
+
+As expected, operations performed on parallelized streams, including `reduce()`, are executed in parallel, hence taking
+advantage of multicore hardware architectures.
+
+**Reduction without identity**
+
+If the reduction operation has an identity element, then it can be passed to the `reduce()` method. Thus, if the 
+processed stream is empty, then the identity element is returned.
+
+```
+        final List<Student> students = ...;
+        int sum = students.stream()
+                       .mapToInt(Student::getAge)
+                       .filter(age -> age > 20)
+                       .reduce(0, Integer::sum);
+```
+
+If the reduction operation has **NO** identity element, OR, if no element is provided, then the `reduce()` method wraps 
+the result in an `Optional` object.
+
+```
+        final List<Student> students = ...;
+        final Optional<Integer> optionalSum = students.stream()
+                       .mapToInt(Student::getAge)
+                       .filter(age -> age > 20)
+                       .reduce(Integer::sum);
+```
 
 
 ---
