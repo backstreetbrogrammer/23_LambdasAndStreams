@@ -1612,4 +1612,112 @@ The GroupingBy Collector:
 
 - groups data using a function
 - by default, collects the objects in list
+- a downstream collector can be also passed
 
+**Example:**
+
+```java
+public class Student {
+
+    private final String name;
+    private final int age;
+    private final String course;
+
+    public Student(final String name, final int age, final String course) {
+        this.name = name;
+        this.age = age;
+        this.course = course;
+    }
+
+    // getters and equals() / hashcode()
+}
+```
+
+Suppose I want to know which students have enrolled for a **Java** course or a **Python** course.
+
+We can use `Collectors.groupingBy()`:
+
+```java
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class GroupingByDemo {
+
+    public static void main(String[] args) {
+        final var john = new Student("John", 18, "Python");
+        final var mary = new Student("Mary", 16, "Java");
+        final var thomas = new Student("Thomas", 21, "Java");
+        final var rahul = new Student("Rahul", 23, "JavaScript");
+        final var jenny = new Student("Jenny", 17, "Python");
+        final var tatiana = new Student("Tatiana", 25, "Java");
+
+        final List<Student> students = List.of(john, mary, thomas, rahul, jenny, tatiana);
+
+        final Map<String, List<Student>> studentsPerCourse =
+                students.stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        Student::getCourse
+                                                     )
+                                );
+
+        studentsPerCourse.forEach((course, st) -> System.out.printf("Course: %s, Students Enrolled: %s%n",
+                                                                    course,
+                                                                    st));
+    }
+
+}
+```
+
+**Output:**
+
+```
+Course: Java, Students Enrolled: [Student{name='Mary', age=16}, Student{name='Thomas', age=21}, Student{name='Tatiana', age=25}]
+Course: JavaScript, Students Enrolled: [Student{name='Rahul', age=23}]
+Course: Python, Students Enrolled: [Student{name='John', age=18}, Student{name='Jenny', age=17}]
+```
+
+Now, if I want to count how many number of students are enrolled to a course.
+
+I can use a **downstream collector** as the overloaded argument to `Collectors.groupingBy()`
+
+```
+        final Map<String, Long> countOfStudentsPerCourse =
+                students.stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        StudentWithCourse::getCourse, Collectors.counting()
+                                                     )
+                                );
+
+        countOfStudentsPerCourse.forEach((course, cnt) -> System.out.printf("Course: %s, Number of Students Enrolled:" +
+                                                                                    " %d%n",
+                                                                            course,
+                                                                            cnt));
+```
+
+Here, `Collectors.counting()` is the downstream collector.
+
+**Output:**
+
+```
+Course: Java, Number of Students Enrolled: 3
+Course: JavaScript, Number of Students Enrolled: 1
+Course: Python, Number of Students Enrolled: 2
+```
+
+**Collectors.partitioningBy()**
+
+**PartitioningBy** is a specialized case of `groupingBy` that accepts a `Predicate` instance and then collects `Stream`
+elements into a `Map` instance that stores `Boolean` values as **keys** and **collections** as **values**.
+
+Under the `true` key, we can find a collection of elements matching the given `Predicate`, and under the `false` key, we
+can find a collection of elements **not** matching the given `Predicate`.
+
+```
+        // Collectors.partitioningBy()
+        final Map<Boolean, List<Student>> collectorsPartitioningBy
+                = students.stream()
+                          .collect(Collectors.partitioningBy(student -> student.getAge() > 20));
+```

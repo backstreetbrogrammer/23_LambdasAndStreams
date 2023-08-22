@@ -106,5 +106,9 @@ public class CollectorsDemo {
                           .map(Student::getAge)
                           .collect(Collectors.maxBy(Comparator.naturalOrder()));
 
+        // Collectors.partitioningBy()
+        final Map<Boolean, List<Student>> collectorsPartitioningBy
+                = students.stream()
+                          .collect(Collectors.partitioningBy(student -> student.getAge() > 20));
     }
 }
